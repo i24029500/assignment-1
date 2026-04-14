@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shanghai | Start Journey</title>
+  <style>
+    :root {
+      --bg-main: #0D1B2A;
+      --bg-secondary: #1B263B;
+      --accent-blue: #00A8E8;
+      --accent-pink: #FF4D6D;
+      --accent-gold: #FFD166;
+      --text-main: #F8F9FA;
+      --text-soft: #ADB5BD;
+      --border-soft: rgba(248, 249, 250, 0.14);
+      --glow-blue: rgba(0, 168, 232, 0.35);
+      --glow-pink: rgba(255, 77, 109, 0.28);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      font-family: "Poppins", "Segoe UI", Arial, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      overflow: hidden;
+    }
+
+    body {
+      position: relative;
+    }
+
+    #particle-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: block;
+      z-index: 0;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(0, 168, 232, 0.18), transparent 30%),
+        radial-gradient(circle at 80% 25%, rgba(255, 77, 109, 0.12), transparent 28%),
+        radial-gradient(circle at 50% 75%, rgba(255, 209, 102, 0.08), transparent 25%),
+        linear-gradient(135deg, #08111c 0%, #0d1b2a 48%, #101f34 100%);
+    }
+
+    .overlay-grid {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.045) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(circle at center, black 52%, transparent 100%);
+      opacity: 0.22;
+      pointer-events: none;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 2;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .hero-card {
+      width: min(900px, 100%);
+      padding: clamp(2rem, 4vw, 4rem);
+      border: 1px solid var(--border-soft);
+      background: linear-gradient(180deg, rgba(27, 38, 59, 0.56), rgba(13, 27, 42, 0.72));
+      backdrop-filter: blur(12px);
+      border-radius: 28px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 24px 80px rgba(0, 0, 0, 0.38),
+        0 0 80px rgba(0, 168, 232, 0.10);
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero-card::before,
+    .hero-card::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      filter: blur(36px);
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .hero-card::before {
+      background: var(--glow-blue);
+      top: -60px;
+      left: -40px;
+    }
+
+    .hero-card::after {
+      background: var(--glow-pink);
+      right: -50px;
+      bottom: -70px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.55rem 1rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-gold);
+      background: rgba(255, 209, 102, 0.08);
+      border: 1px solid rgba(255, 209, 102, 0.16);
+      margin-bottom: 1.3rem;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-gold);
+      box-shadow: 0 0 16px rgba(255, 209, 102, 0.8);
+    }
+
+    h1 {
+      font-size: clamp(3rem, 10vw, 7rem);
+      line-height: 0.95;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 24px rgba(0, 168, 232, 0.18);
+    }
+
+    h1 span {
+      color: var(--accent-blue);
+      text-shadow: 0 0 28px rgba(0, 168, 232, 0.45);
+    }
+
+    .subtitle {
+      max-width: 680px;
+      margin: 0 auto 1rem;
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      color: var(--text-main);
+      line-height: 1.7;
+    }
+
+    .supporting-text {
+      max-width: 620px;
+      margin: 0 auto 2rem;
+      color: var(--text-soft);
+      font-size: 0.98rem;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.8rem;
+    }
+
+    .start-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.7rem;
+      text-decoration: none;
+      color: var(--text-main);
+      background: linear-gradient(135deg, var(--accent-blue), #39c0f4);
+      padding: 1rem 1.7rem;
+      border-radius: 999px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1px solid rgba(255,255,255,0.18);
+      box-shadow: 0 0 24px rgba(0, 168, 232, 0.32);
+      transition: transform 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+    }
+
+    .start-btn:hover,
+    .start-btn:focus-visible {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 0 30px rgba(255, 77, 109, 0.28), 0 0 40px rgba(0, 168, 232, 0.42);
+      background: linear-gradient(135deg, var(--accent-pink), #ff7691);
+      outline: none;
+    }
+
+    .secondary-note {
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+    }
+
+    .corner-label {
+      position: fixed;
+      right: 1.2rem;
+      bottom: 1.2rem;
+      z-index: 2;
+      color: rgba(248, 249, 250, 0.6);
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.7rem 0.95rem;
+      border-radius: 999px;
+      background: rgba(13, 27, 42, 0.58);
+      border: 1px solid rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+    }
+
+    @media (max-width: 768px) {
+      html, body {
+        overflow: auto;
+      }
+
+      .hero {
+        padding: 1.25rem;
+      }
+
+      .hero-card {
+        padding: 2rem 1.25rem;
+        border-radius: 22px;
+      }
+
+      .subtitle {
+        line-height: 1.55;
+      }
+
+      .supporting-text {
+        font-size: 0.94rem;
+      }
+
+      .corner-label {
+        right: 0.9rem;
+        bottom: 0.9rem;
+        font-size: 0.72rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particle-canvas" aria-hidden="true"></canvas>
+  <div class="overlay-grid" aria-hidden="true"></div>
+
+  <main class="hero">
+    <section class="hero-card" aria-label="Shanghai landing page introduction">
+      <div class="eyebrow">Urban Lights / Cultural Pulse</div>
+      <h1>SHA<span>NG</span>HAI</h1>
+      <p class="subtitle">Where heritage streets, futuristic skylines, and unforgettable city energy come together.</p>
+      <p class="supporting-text">
+       
+      </p>
+      <div class="hero-actions">
+        <a class="start-btn" href="shanghai.html" aria-label="Open the main Shanghai tourism page">Start Journey →</a>
+        <span class="secondary-note">Responsive / Interactive / Modern</span>
+      </div>
+    </section>
+  </main>
+
+  <div class="corner-label">Shanghai Digital Promo</div>
+
+  <script>
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    let mouse = { x: null, y: null, radius: 140 };
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      createParticles();
+    }
+
+    function createParticles() {
+      const density = Math.max(36, Math.floor((canvas.width * canvas.height) / 22000));
+      particles = [];
+      for (let i = 0; i < density; i++) {
+        particles.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.55,
+          vy: (Math.random() - 0.5) * 0.55,
+          size: Math.random() * 2 + 1,
+          hue: Math.random() > 0.78 ? 'pink' : 'blue'
+        });
+      }
+    }
+
+    function drawParticle(p) {
+      ctx.beginPath();
+      const color = p.hue === 'pink' ? 'rgba(255, 77, 109, 0.95)' : 'rgba(0, 168, 232, 0.95)';
+      ctx.fillStyle = color;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = color;
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    function connectParticles() {
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          if (distance < 110) {
+            const opacity = 1 - distance / 110;
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(173, 181, 189, ${opacity * 0.18})`;
+            ctx.lineWidth = 1;
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+    }
+
+    function interactWithMouse(p) {
+      if (mouse.x === null || mouse.y === null) return;
+      const dx = p.x - mouse.x;
+      const dy = p.y - mouse.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < mouse.radius) {
+        const force = (mouse.radius - dist) / mouse.radius;
+        p.x += (dx / dist || 0) * force * 1.2;
+        p.y += (dy / dist || 0) * force * 1.2;
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+        interactWithMouse(p);
+        drawParticle(p);
+      }
+      connectParticles();
+      requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    });
+
+    window.addEventListener('touchmove', (e) => {
+      if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+      }
+    }, { passive: true });
+
+    window.addEventListener('mouseleave', () => {
+      mouse.x = null;
+      mouse.y = null;
+    });
+
+    window.addEventListener('resize', resizeCanvas);
+
+    resizeCanvas();
+    animate();
+  </script>
+</body>
+</html>
